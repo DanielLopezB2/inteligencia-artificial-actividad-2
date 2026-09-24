@@ -11,3 +11,4 @@ env/
 htmlcov/
 
 .DS_Store
+.atl
