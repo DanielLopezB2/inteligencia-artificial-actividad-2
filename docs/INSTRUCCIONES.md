@@ -34,6 +34,7 @@ python -m src.cli "Portal Américas" "Calle 100"
 | Modo interactivo (pregunta origen y destino) | `python -m src.cli` |
 | Listar estaciones por línea | `python -m src.cli --list` |
 | Cambiar la penalización por transbordo (minutos, por defecto 5) | `python -m src.cli "Portal Américas" "Calle 100" --penalty 0` |
+| Idioma de salida: `--lang en` para inglés (por defecto `es`) | `python -m src.cli "Portal Américas" "Calle 100" --lang en` |
 | Usar otro archivo de red | `python -m src.cli --data ruta/otra_red.json "A" "B"` |
 
 Los nombres no distinguen mayúsculas ni tildes: `heroes` equivale a `Héroes`. Si una estación no existe, el programa sugiere nombres parecidos.
@@ -41,19 +42,21 @@ Los nombres no distinguen mayúsculas ni tildes: `heroes` equivale a `Héroes`. 
 ## 4. Cómo leer la salida
 
 ```text
-Route: Portal Américas -> Calle 100
-Ride Americas: Portal Américas -> Ricaurte (4 stops, 17 min)
-Transfer at Ricaurte: Americas -> NQS
-Ride NQS: Ricaurte -> Centro Memoria (1 stop, 5 min)
+Ruta: Portal Américas -> Calle 100
+Tramo Americas: Portal Américas -> Ricaurte (4 paradas, 17 min)
+Transbordo en Ricaurte: Americas -> NQS
+Tramo NQS: Ricaurte -> Centro Memoria (1 parada, 5 min)
 ...
-Ride time: 38 min | Transfers: 3 | Total cost: 53.0 (penalty 5.0 min per transfer)
+Tiempo de viaje: 38 min | Transbordos: 3 | Costo total: 53.0 (penalización de 5.0 min por transbordo)
 ```
 
-- `Ride <línea>`: un tramo continuo en una misma línea (estación inicial -> final, paradas y minutos).
-- `Transfer at <estación>`: cambio de línea.
+- `Tramo <línea>`: un tramo continuo en una misma línea (estación inicial -> final, paradas y minutos).
+- `Transbordo en <estación>`: cambio de línea.
 - Última línea: tiempo de viaje, número de transbordos y costo total (`minutos + penalización x transbordos`).
 
-Códigos de salida: `0` éxito o misma estación; `1` estación desconocida o sin ruta; `2` argumentos inválidos (por ejemplo `--penalty` negativo).
+Con `--lang en` la salida es equivalente en inglés (`Route`, `Ride <línea>`, `Transfer at <estación>`, `Ride time | Transfers | Total cost`).
+
+Códigos de salida: `0` éxito o misma estación; `1` estación desconocida o sin ruta; `2` argumentos inválidos (por ejemplo `--penalty` negativo o `--lang` no soportado).
 
 ## 5. Pruebas
 
@@ -61,7 +64,7 @@ Códigos de salida: `0` éxito o misma estación; `1` estación desconocida o si
 python -m pytest -q
 ```
 
-Resultado esperado: `50 passed`.
+Resultado esperado: `63 passed`.
 
 ## 6. Estructura del proyecto
 

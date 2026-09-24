@@ -21,33 +21,33 @@ Verificar que el planificador cumple lo que promete: cargar una base de conocimi
 ## 3. Estrategia
 
 - **TDD:** cada feature se desarrolló escribiendo primero las pruebas, viéndolas fallar y luego implementando. La prueba en rojo no queda en el historial de Git, porque cada commit agrupa pruebas y código ya en verde.
-- **Una rama por feature:** `feat/knowledge-base`, `feat/graph-builder`, `feat/astar-search`, `feat/cli`.
+- **Una rama por feature:** `feat/knowledge-base`, `feat/graph-builder`, `feat/astar-search`, `feat/cli`, `feat/cli-es`.
 - **Integración con `merge --no-ff`**, para conservar el historial de cada feature.
 - **Compuerta antes de avanzar:** pruebas automáticas en verde y una prueba funcional del CLI o del módulo antes de empezar el siguiente feature.
 
 ## 4. Resultados de `python -m pytest -v`
 
-**Total: 50 pruebas, 50 aprobadas, 0 fallidas (0.21 s).**
+**Total: 63 pruebas, 63 aprobadas, 0 fallidas (0.31 s).**
 
 | Módulo | Pruebas | Qué cubre |
 |---|---|---|
 | `tests/test_knowledge_base.py` | 20 | Motor de inferencia (reglas, joins, `!=`, punto fijo, no muta la entrada), `query`, adyacencia simétrica, estaciones de transbordo, integridad de `network.json`, validación de datos (estación o línea desconocida, minutos no positivos). |
 | `tests/test_graph.py` | 8 | Estaciones presentes, aristas simétricas con los mismos minutos, vecinos de Ricaurte, transbordos, coordenadas, conectividad, orden determinista, estación aislada. |
 | `tests/test_search.py` | 9 | Ruta sin transbordos, ruta con varios transbordos consistente, optimalidad en todos los pares, simetría del costo, desempate por menos transbordos, efecto de la penalización, destino inalcanzable, estación desconocida, origen igual a destino. |
-| `tests/test_cli.py` | 13 | Normalización de tildes y mayúsculas, sugerencias, formato de tramos y totales, ruta, misma estación, estación desconocida, `--list`, `--penalty` (y rechazo de negativos), modo interactivo, ejecución desde otro directorio. |
-| **Total** | **50** | |
+| `tests/test_cli.py` | 26 | Normalización de tildes y mayúsculas, sugerencias, formato de tramos y totales, ruta, misma estación, estación desconocida, `--list`, `--penalty` (y rechazo de negativos), modo interactivo, ejecución desde otro directorio; `--lang` (español por defecto, `--lang en` reproduce la salida en inglés, valor inválido rechazado), catálogos es/en con los mismos identificadores de mensaje, pluralización de paradas, mensajes de misma estación, estación desconocida, sin ruta, marcador de `--list` y prompts interactivos en ambos idiomas. |
+| **Total** | **63** | |
 
 ## 5. Pruebas funcionales (CLI real)
 
-Cada caso se ejecutó desde la raíz del repositorio.
+Cada caso se ejecutó desde la raíz del repositorio con la salida en español (idioma por defecto).
 
 ### F1. Ruta en una sola línea
 
 ```text
 $ python -m src.cli "Portal Américas" "Ricaurte"
-Route: Portal Américas -> Ricaurte
-Ride Americas: Portal Américas -> Ricaurte (4 stops, 17 min)
-Ride time: 17 min | Transfers: 0 | Total cost: 17.0 (penalty 5.0 min per transfer)
+Ruta: Portal Américas -> Ricaurte
+Tramo Americas: Portal Américas -> Ricaurte (4 paradas, 17 min)
+Tiempo de viaje: 17 min | Transbordos: 0 | Costo total: 17.0 (penalización de 5.0 min por transbordo)
 ```
 
 Veredicto: correcto. Sin transbordos, costo igual al tiempo de viaje.
@@ -56,15 +56,15 @@ Veredicto: correcto. Sin transbordos, costo igual al tiempo de viaje.
 
 ```text
 $ python -m src.cli "Portal Américas" "Calle 100"
-Route: Portal Américas -> Calle 100
-Ride Americas: Portal Américas -> Ricaurte (4 stops, 17 min)
-Transfer at Ricaurte: Americas -> NQS
-Ride NQS: Ricaurte -> Centro Memoria (1 stop, 5 min)
-Transfer at Centro Memoria: NQS -> Calle 26
-Ride Calle 26: Centro Memoria -> Calle 26 (1 stop, 2 min)
-Transfer at Calle 26: Calle 26 -> Caracas
-Ride Caracas: Calle 26 -> Calle 100 (6 stops, 14 min)
-Ride time: 38 min | Transfers: 3 | Total cost: 53.0 (penalty 5.0 min per transfer)
+Ruta: Portal Américas -> Calle 100
+Tramo Americas: Portal Américas -> Ricaurte (4 paradas, 17 min)
+Transbordo en Ricaurte: Americas -> NQS
+Tramo NQS: Ricaurte -> Centro Memoria (1 parada, 5 min)
+Transbordo en Centro Memoria: NQS -> Calle 26
+Tramo Calle 26: Centro Memoria -> Calle 26 (1 parada, 2 min)
+Transbordo en Calle 26: Calle 26 -> Caracas
+Tramo Caracas: Calle 26 -> Calle 100 (6 paradas, 14 min)
+Tiempo de viaje: 38 min | Transbordos: 3 | Costo total: 53.0 (penalización de 5.0 min por transbordo)
 ```
 
 Veredicto: correcto. 38 min + 3 x 5 min = 53.0.
@@ -73,7 +73,7 @@ Veredicto: correcto. 38 min + 3 x 5 min = 53.0.
 
 ```text
 $ python -m src.cli "Héroes" "Héroes"
-You are already at Héroes.
+Ya estás en Héroes.
 ```
 
 Veredicto: correcto. Código de salida 0, sin buscar ruta.
@@ -82,15 +82,15 @@ Veredicto: correcto. Código de salida 0, sin buscar ruta.
 
 ```text
 $ python -m src.cli "heroes" "PORTAL AMERICAS"
-Route: Héroes -> Portal Américas
-Ride Caracas: Héroes -> Calle 26 (5 stops, 12 min)
-Transfer at Calle 26: Caracas -> Calle 26
-Ride Calle 26: Calle 26 -> Centro Memoria (1 stop, 2 min)
-Transfer at Centro Memoria: Calle 26 -> NQS
-Ride NQS: Centro Memoria -> Ricaurte (1 stop, 5 min)
-Transfer at Ricaurte: NQS -> Americas
-Ride Americas: Ricaurte -> Portal Américas (4 stops, 17 min)
-Ride time: 36 min | Transfers: 3 | Total cost: 51.0 (penalty 5.0 min per transfer)
+Ruta: Héroes -> Portal Américas
+Tramo Caracas: Héroes -> Calle 26 (5 paradas, 12 min)
+Transbordo en Calle 26: Caracas -> Calle 26
+Tramo Calle 26: Calle 26 -> Centro Memoria (1 parada, 2 min)
+Transbordo en Centro Memoria: Calle 26 -> NQS
+Tramo NQS: Centro Memoria -> Ricaurte (1 parada, 5 min)
+Transbordo en Ricaurte: NQS -> Americas
+Tramo Americas: Ricaurte -> Portal Américas (4 paradas, 17 min)
+Tiempo de viaje: 36 min | Transbordos: 3 | Costo total: 51.0 (penalización de 5.0 min por transbordo)
 ```
 
 Veredicto: correcto. Los nombres se resuelven a la forma oficial (`Héroes`, `Portal Américas`).
@@ -99,7 +99,7 @@ Veredicto: correcto. Los nombres se resuelven a la forma oficial (`Héroes`, `Po
 
 ```text
 $ python -m src.cli "Calle 1000" "Ricaurte"
-Unknown station: 'Calle 1000'. Did you mean: Calle 100, Calle 75, Calle 72?
+Estación desconocida: 'Calle 1000'. ¿Quisiste decir: Calle 100, Calle 75, Calle 72?
 ```
 
 Veredicto: correcto. Código de salida 1 y sugerencias útiles.
@@ -108,9 +108,15 @@ Veredicto: correcto. Código de salida 1 y sugerencias útiles.
 
 ```text
 $ python -m src.cli "Portal Américas" "Calle 100" --penalty 0
-Route: Portal Américas -> Calle 100
-(mismos 4 tramos que F2)
-Ride time: 38 min | Transfers: 3 | Total cost: 38.0 (penalty 0.0 min per transfer)
+Ruta: Portal Américas -> Calle 100
+Tramo Americas: Portal Américas -> Ricaurte (4 paradas, 17 min)
+Transbordo en Ricaurte: Americas -> NQS
+Tramo NQS: Ricaurte -> Centro Memoria (1 parada, 5 min)
+Transbordo en Centro Memoria: NQS -> Calle 26
+Tramo Calle 26: Centro Memoria -> Calle 26 (1 parada, 2 min)
+Transbordo en Calle 26: Calle 26 -> Caracas
+Tramo Caracas: Calle 26 -> Calle 100 (6 paradas, 14 min)
+Tiempo de viaje: 38 min | Transbordos: 3 | Costo total: 38.0 (penalización de 0.0 min por transbordo)
 ```
 
 | Penalización | Costo total | Ruta |
@@ -124,8 +130,15 @@ Veredicto: correcto. El costo cambia (53.0 -> 38.0). La ruta es la misma porque 
 
 ```text
 $ printf 'Portal Américas\nCalle 100\n' | python -m src.cli
-Origin station: Destination station: Route: Portal Américas -> Calle 100
-(mismos 4 tramos y totales que F2, costo 53.0)
+Estación de origen: Estación de destino: Ruta: Portal Américas -> Calle 100
+Tramo Americas: Portal Américas -> Ricaurte (4 paradas, 17 min)
+Transbordo en Ricaurte: Americas -> NQS
+Tramo NQS: Ricaurte -> Centro Memoria (1 parada, 5 min)
+Transbordo en Centro Memoria: NQS -> Calle 26
+Tramo Calle 26: Centro Memoria -> Calle 26 (1 parada, 2 min)
+Transbordo en Calle 26: Calle 26 -> Caracas
+Tramo Caracas: Calle 26 -> Calle 100 (6 paradas, 14 min)
+Tiempo de viaje: 38 min | Transbordos: 3 | Costo total: 53.0 (penalización de 5.0 min por transbordo)
 ```
 
 Veredicto: correcto. Los prompts no llevan salto de línea porque stdin no es una terminal.
@@ -134,12 +147,30 @@ Veredicto: correcto. Los prompts no llevan salto de línea porque stdin no es un
 
 ```text
 $ python -m src.cli "Ricaurte" "Calle 100" --penalty -1
-usage: python -m src.cli [-h] [--list] [--penalty MINUTES] [--data DATA]
+usage: python -m src.cli [-h] [--list] [--penalty MINUTES] [--lang {en,es}]
+                         [--data DATA]
                          [origin] [destination]
 python -m src.cli: error: argument --penalty: must be >= 0
 ```
 
-Veredicto: correcto. Rechazado con código de salida 2.
+Veredicto: correcto. Rechazado con código de salida 2. El mensaje de uso ahora incluye la opción `--lang`.
+
+### F9. Salida en inglés con `--lang en`
+
+```text
+$ python -m src.cli "Portal Américas" "Calle 100" --lang en
+Route: Portal Américas -> Calle 100
+Ride Americas: Portal Américas -> Ricaurte (4 stops, 17 min)
+Transfer at Ricaurte: Americas -> NQS
+Ride NQS: Ricaurte -> Centro Memoria (1 stop, 5 min)
+Transfer at Centro Memoria: NQS -> Calle 26
+Ride Calle 26: Centro Memoria -> Calle 26 (1 stop, 2 min)
+Transfer at Calle 26: Calle 26 -> Caracas
+Ride Caracas: Calle 26 -> Calle 100 (6 stops, 14 min)
+Ride time: 38 min | Transfers: 3 | Total cost: 53.0 (penalty 5.0 min per transfer)
+```
+
+Veredicto: correcto. Misma ruta y mismos totales que F2. La salida en inglés es idéntica, byte a byte, a la de la versión anterior al soporte bilingüe (lo verifica `test_lang_en_reproduces_english_output`).
 
 ### Resumen
 
@@ -153,6 +184,7 @@ Veredicto: correcto. Rechazado con código de salida 2.
 | F6 | `--penalty 0` vs defecto | OK |
 | F7 | Modo interactivo | OK |
 | F8 | Penalización negativa | OK |
+| F9 | `--lang en` | OK |
 
 ## 6. Verificación de optimalidad
 
@@ -169,32 +201,38 @@ Veredicto: A* devuelve el costo óptimo en los 380 pares. La misma comprobación
 
 ```text
 $ git log --graph --oneline --all
+* 397053f feat(cli): add --lang option with Spanish default
+*   54823ae merge: docs/test-report into main
+|\
+| * c60d3e0 docs: add test report with real evidence (md and pdf)
+| * a8dc8e0 docs: add execution instructions in Spanish
+|/
 *   8affc1f merge: feat/cli into main
-|\  
+|\
 | * 002120a feat(cli): add command-line route planner
-|/  
+|/
 *   f4d74c2 merge: feat/astar-search into main
-|\  
+|\
 | * a20f57b feat(search): add A* route search with transfer penalty
-|/  
+|/
 *   5a3f307 merge: feat/graph-builder into main
-|\  
+|\
 | * d4b70a2 feat(graph): build transport graph from knowledge-base facts
 | * e2abd99 feat(kb): expose station coordinates as location facts
-|/  
+|/
 * b13f5c8 chore: ignore .atl tooling directory
 *   3cbfd19 merge: feat/knowledge-base into main
-|\  
+|\
 | * e769c58 refactor(kb): split load_knowledge_base into validation helpers
 | * 8fab9b8 feat(kb): add logic inference engine and TransMilenio knowledge base
-|/  
+|/
 * 97e4130 docs: add project overview and setup guide
 * 0a53cb5 chore: initialize route planning project
 ```
 
-La salida se capturó antes de integrar esta rama de documentación, por lo que no incluye su commit ni su merge.
+La salida se capturó antes de integrar la rama `feat/cli-es` y esta actualización de la documentación, por lo que no incluye sus merges.
 
-Ramas de feature (todas integradas en `main` con `--no-ff`): `feat/knowledge-base`, `feat/graph-builder`, `feat/astar-search`, `feat/cli`. Esta documentación vive en `docs/test-report`.
+Ramas de feature integradas en `main` con `--no-ff`: `feat/knowledge-base`, `feat/graph-builder`, `feat/astar-search`, `feat/cli`. La rama `feat/cli-es` (opción `--lang`, español por defecto) aún no está integrada en `main` al momento de escribir este informe. La documentación anterior vivió en `docs/test-report`.
 
 ## 8. Limitaciones
 
