@@ -127,6 +127,11 @@ def _write(tmp_path, **overrides):
     return path
 
 
+def test_location_facts_keep_coordinates(tmp_path):
+    facts = load_knowledge_base(_write(tmp_path))
+    assert ("location", "A", 4.6, -74.0) in facts
+
+
 def test_valid_minimal_network_loads(tmp_path):
     facts = load_knowledge_base(_write(tmp_path))
     assert ("station", "A") in facts and ("on_line", "A", "L1") in facts

@@ -124,5 +124,6 @@ def load_knowledge_base(path, rules=RULES) -> set:
     stations = {s["name"] for s in data["stations"]}
     on_line = _line_facts(data["lines"], stations)
     segments = {_segment_fact(seg, stations, on_line) for seg in data["segments"]}
-    facts = {("station", name) for name in stations} | on_line | segments
+    locations = {("location", s["name"], s["lat"], s["lon"]) for s in data["stations"]}
+    facts = {("station", name) for name in stations} | on_line | segments | locations
     return forward_chain(facts, rules)
