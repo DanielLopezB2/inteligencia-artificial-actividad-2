@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project implements a knowledge-based intelligent system capable of finding the best route between two stations in a local mass transit system.
+This project implements a knowledge-based intelligent system that finds the best route between two stations of TransMilenio (Bogotá), using a reduced real network of 4 lines and 20 stations.
 
 The system combines:
 
@@ -12,7 +12,7 @@ The system combines:
 - Heuristic search.
 - Automated testing.
 
-The main search algorithm will be A\*, which will use the accumulated route cost and a heuristic estimation to select the most promising station.
+The search algorithm is A\*, which uses the accumulated route cost and a heuristic estimation to select the most promising station.
 
 ## Academic Purpose
 
@@ -23,43 +23,53 @@ The project demonstrates the application of artificial intelligence concepts rel
 3. Heuristic search techniques.
 4. Intelligent decision-making.
 
-## Planned System Behavior
+## Quick Start
 
-The user will provide:
+```bash
+python -m src.cli "Portal Américas" "Calle 100"
+```
 
-- An origin station.
-- A destination station.
+The output is in Spanish by default; use `--lang en` for English. Full setup, options and examples are in [docs/INSTRUCCIONES.md](docs/INSTRUCCIONES.md) (Spanish). Test evidence is in [docs/informe-pruebas.pdf](docs/informe-pruebas.pdf).
 
-The system will then:
+## System Behavior
 
-1. Validate the input stations.
-2. Load the transport knowledge base.
-3. Apply logical rules.
-4. Build the transport graph.
-5. Search for the best route using A\*.
-6. Display the selected route and its total cost.
+The user provides an origin station and a destination station. The system then:
+
+1. Validates the input stations (case and accent insensitive, with suggestions).
+2. Loads the transport knowledge base.
+3. Applies logical rules (Horn clauses, forward chaining) to derive adjacency and transfer stations.
+4. Builds the transport graph.
+5. Searches for the best route using A\*.
+6. Displays the selected route and its total cost.
 
 ## Route Selection Criteria
 
-The primary criterion will be the lowest estimated travel cost.
+The primary criterion is the lowest total cost: travel minutes plus a penalty of 5 minutes (configurable with `--penalty`) each time the route changes line.
 
-The route cost may consider:
+The heuristic uses the straight-line (haversine) distance to the destination divided by the maximum speed observed in the network, so it never overestimates the real cost.
 
-- Travel time.
-- Number of transfers.
-- Distance between stations.
-- Availability of transport connections.
+If two routes have the same cost, the system prefers the route with fewer transfers.
 
-If two routes have the same cost, the system will prefer the route with fewer transfers.
-
-## Planned Project Structure
+## Project Structure
 
 ```text
 actividad-2/
 ├── README.md
-├── .gitignore
+├── requirements.txt
 ├── data/
+│   └── network.json          # stations, lines and segments (approximate estimates)
 ├── docs/
+│   ├── INSTRUCCIONES.md      # how to run (Spanish)
+│   ├── informe-pruebas.md    # test report (Spanish)
+│   └── informe-pruebas.pdf
 ├── src/
+│   ├── knowledge_base.py     # Horn-clause engine, rules and data loader
+│   ├── graph.py              # graph built from knowledge-base facts
+│   ├── search.py             # A* with transfer penalty
+│   └── cli.py                # command-line interface (es/en)
 └── tests/
 ```
+
+## Limitations
+
+Times and coordinates in `data/network.json` are approximate estimates for academic use, and adjacent stations may skip real intermediate stops. Check them against the official TransMilenio map before using the results for anything else.
