@@ -93,28 +93,36 @@ RULES = [
 
 # ------------------------------------------------------------------ loader
 
-def load_knowledge_base(path, rules=RULES) -> set:
-    """Load network.json, validate it, and return base plus derived facts."""
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
-    stations = {s["name"] for s in data["stations"]}
-    facts = {("station", name) for name in stations}
-
-    for line, stops in data["lines"].items():
+def _line_facts(lines: dict, stations: set) -> set:
+    """Build `on_line` facts, rejecting stops that are not declared stations."""
+    facts = set()
+    for line, stops in lines.items():
         for stop in stops:
             if stop not in stations:
                 raise ValueError(f"unknown station {stop!r} in line {line!r}")
             facts.add(("on_line", stop, line))
+    return facts
 
-    for seg in data["segments"]:
-        a, b, line, minutes = seg["station_a"], seg["station_b"], seg["line"], seg["minutes"]
-        for name in (a, b):
-            if name not in stations:
-                raise ValueError(f"unknown station {name!r} in segment {a}-{b}")
-        if not isinstance(minutes, (int, float)) or minutes <= 0:
-            raise ValueError(f"minutes must be positive in segment {a}-{b}: {minutes!r}")
-        for name in (a, b):
-            if ("on_line", name, line) not in facts:
-                raise ValueError(f"station {name!r} is not on line {line!r} (segment {a}-{b})")
-        facts.add(("segment", a, b, line, minutes))
 
+def _segment_fact(seg: dict, stations: set, on_line: set) -> tuple:
+    """Validate one segment and return its `segment` fact."""
+    a, b, line, minutes = seg["station_a"], seg["station_b"], seg["line"], seg["minutes"]
+    for name in (a, b):
+        if name not in stations:
+            raise ValueError(f"unknown station {name!r} in segment {a}-{b}")
+    if not isinstance(minutes, (int, float)) or minutes <= 0:
+        raise ValueError(f"minutes must be positive in segment {a}-{b}: {minutes!r}")
+    for name in (a, b):
+        if ("on_line", name, line) not in on_line:
+            raise ValueError(f"station {name!r} is not on line {line!r} (segment {a}-{b})")
+    return ("segment", a, b, line, minutes)
+
+
+def load_knowledge_base(path, rules=RULES) -> set:
+    """Load network.json, validate it, and return base plus derived facts."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    stations = {s["name"] for s in data["stations"]}
+    on_line = _line_facts(data["lines"], stations)
+    segments = {_segment_fact(seg, stations, on_line) for seg in data["segments"]}
+    facts = {("station", name) for name in stations} | on_line | segments
     return forward_chain(facts, rules)
