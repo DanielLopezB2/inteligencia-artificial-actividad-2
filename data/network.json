@@ -1,0 +1,254 @@
+{
+  "_note": "Reduced network. Travel times and coordinates are approximate estimates for academic use; adjacent stations in this file may skip real intermediate stations, and the time covers the gap.",
+  "stations": [
+    {
+      "name": "Calle 100",
+      "lat": 4.686,
+      "lon": -74.059
+    },
+    {
+      "name": "Héroes",
+      "lat": 4.669,
+      "lon": -74.0625
+    },
+    {
+      "name": "Calle 72",
+      "lat": 4.659,
+      "lon": -74.062
+    },
+    {
+      "name": "Calle 63",
+      "lat": 4.65,
+      "lon": -74.065
+    },
+    {
+      "name": "Calle 45",
+      "lat": 4.633,
+      "lon": -74.0665
+    },
+    {
+      "name": "Calle 34",
+      "lat": 4.622,
+      "lon": -74.069
+    },
+    {
+      "name": "Calle 26",
+      "lat": 4.6165,
+      "lon": -74.07
+    },
+    {
+      "name": "Portal Eldorado",
+      "lat": 4.679,
+      "lon": -74.178
+    },
+    {
+      "name": "Modelia",
+      "lat": 4.67,
+      "lon": -74.137
+    },
+    {
+      "name": "Normandía",
+      "lat": 4.66,
+      "lon": -74.115
+    },
+    {
+      "name": "Av. Rojas",
+      "lat": 4.653,
+      "lon": -74.104
+    },
+    {
+      "name": "Corferias",
+      "lat": 4.63,
+      "lon": -74.093
+    },
+    {
+      "name": "Concejo de Bogotá",
+      "lat": 4.626,
+      "lon": -74.085
+    },
+    {
+      "name": "Centro Memoria",
+      "lat": 4.614,
+      "lon": -74.077
+    },
+    {
+      "name": "Calle 75",
+      "lat": 4.656,
+      "lon": -74.077
+    },
+    {
+      "name": "Ricaurte",
+      "lat": 4.61,
+      "lon": -74.094
+    },
+    {
+      "name": "Portal Américas",
+      "lat": 4.62,
+      "lon": -74.183
+    },
+    {
+      "name": "Banderas",
+      "lat": 4.619,
+      "lon": -74.156
+    },
+    {
+      "name": "Marsella",
+      "lat": 4.624,
+      "lon": -74.13
+    },
+    {
+      "name": "Puente Aranda",
+      "lat": 4.618,
+      "lon": -74.112
+    }
+  ],
+  "lines": {
+    "Caracas": [
+      "Calle 100",
+      "Héroes",
+      "Calle 72",
+      "Calle 63",
+      "Calle 45",
+      "Calle 34",
+      "Calle 26"
+    ],
+    "Calle 26": [
+      "Portal Eldorado",
+      "Modelia",
+      "Normandía",
+      "Av. Rojas",
+      "Corferias",
+      "Concejo de Bogotá",
+      "Centro Memoria",
+      "Calle 26"
+    ],
+    "NQS": [
+      "Calle 75",
+      "Centro Memoria",
+      "Ricaurte"
+    ],
+    "Americas": [
+      "Portal Américas",
+      "Banderas",
+      "Marsella",
+      "Puente Aranda",
+      "Ricaurte"
+    ]
+  },
+  "segments": [
+    {
+      "station_a": "Calle 100",
+      "station_b": "Héroes",
+      "line": "Caracas",
+      "minutes": 2
+    },
+    {
+      "station_a": "Héroes",
+      "station_b": "Calle 72",
+      "line": "Caracas",
+      "minutes": 3
+    },
+    {
+      "station_a": "Calle 72",
+      "station_b": "Calle 63",
+      "line": "Caracas",
+      "minutes": 2
+    },
+    {
+      "station_a": "Calle 63",
+      "station_b": "Calle 45",
+      "line": "Caracas",
+      "minutes": 3
+    },
+    {
+      "station_a": "Calle 45",
+      "station_b": "Calle 34",
+      "line": "Caracas",
+      "minutes": 2
+    },
+    {
+      "station_a": "Calle 34",
+      "station_b": "Calle 26",
+      "line": "Caracas",
+      "minutes": 2
+    },
+    {
+      "station_a": "Portal Eldorado",
+      "station_b": "Modelia",
+      "line": "Calle 26",
+      "minutes": 6
+    },
+    {
+      "station_a": "Modelia",
+      "station_b": "Normandía",
+      "line": "Calle 26",
+      "minutes": 3
+    },
+    {
+      "station_a": "Normandía",
+      "station_b": "Av. Rojas",
+      "line": "Calle 26",
+      "minutes": 2
+    },
+    {
+      "station_a": "Av. Rojas",
+      "station_b": "Corferias",
+      "line": "Calle 26",
+      "minutes": 4
+    },
+    {
+      "station_a": "Corferias",
+      "station_b": "Concejo de Bogotá",
+      "line": "Calle 26",
+      "minutes": 2
+    },
+    {
+      "station_a": "Concejo de Bogotá",
+      "station_b": "Centro Memoria",
+      "line": "Calle 26",
+      "minutes": 2
+    },
+    {
+      "station_a": "Centro Memoria",
+      "station_b": "Calle 26",
+      "line": "Calle 26",
+      "minutes": 2
+    },
+    {
+      "station_a": "Calle 75",
+      "station_b": "Centro Memoria",
+      "line": "NQS",
+      "minutes": 6
+    },
+    {
+      "station_a": "Centro Memoria",
+      "station_b": "Ricaurte",
+      "line": "NQS",
+      "minutes": 5
+    },
+    {
+      "station_a": "Portal Américas",
+      "station_b": "Banderas",
+      "line": "Americas",
+      "minutes": 5
+    },
+    {
+      "station_a": "Banderas",
+      "station_b": "Marsella",
+      "line": "Americas",
+      "minutes": 4
+    },
+    {
+      "station_a": "Marsella",
+      "station_b": "Puente Aranda",
+      "line": "Americas",
+      "minutes": 4
+    },
+    {
+      "station_a": "Puente Aranda",
+      "station_b": "Ricaurte",
+      "line": "Americas",
+      "minutes": 4
+    }
+  ]
+}
